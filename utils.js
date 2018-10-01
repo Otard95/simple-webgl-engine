@@ -85,21 +85,21 @@ class Utils {
       );
     }
     
-    console.log(faces.length / 3);
+    // console.log(faces.length / 3);
     
     let max = 0;
     faces.forEach(f => {
       if (f > max) max = f;
     });
     
-    console.log(vertices.length / 3 == max, max);
+    // console.log(vertices.length / 3 == max, max);
 
-    console.log(
-      vertices,
-      tex_coord,
-      vertex_norm,
-      faces
-    );
+    // console.log(
+    //   vertices,
+    //   tex_coord,
+    //   vertex_norm,
+    //   faces
+    // );
     
     return {
       positions: vertices,
