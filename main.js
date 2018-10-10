@@ -6,18 +6,13 @@ let renderable_list = new RenderableList(document.querySelector('.tools #rendera
 const height = 600;
 const width = 800;
 
-// Create a perspective matrix, a special matrix that is
-// used to simulate the distortion of perspective in a camera.
-// Our field of view is 45 degrees, with a width/height
-// ratio that matches the display size of the canvas
-// and we only want to see objects between 0.1 units
-// and 100 units away from the camera.
-
+// Projection Matrix
+const projection_matrix = mat4.create();
+{ // Setup Projection Matrix
 const fieldOfView = 45 * Math.PI / 180;   // in radians
 const aspect = width / height;
 const zNear = 0.1;
 const zFar = 600.0;
-const projection_matrix = mat4.create();
 
 // note: glmatrix.js always has the first argument
 // as the destination to receive the result.
@@ -27,41 +22,35 @@ mat4.perspective(projection_matrix,
   zNear,
   zFar
 );
+}
 
 // setup view matrix
-let view_matrix = mat4.create();
-mat4.translate(
-  view_matrix,
-  view_matrix,
-  [0,-1,-7]
-);
+let camera = new Camera();
+camera.createKeyboardShortcuts(SM);
 
 // Stuff to render
 let stuff_to_render = [];
 
 let then = 0;
 
-let camera = new Renderable(
+let camera_obj = new Renderable(
   './objects/camera.jobj',
   vec3.fromValues(1, 0, 2),
   vec3.fromValues(3, 3, 3)
 );
-camera.createKeyboardShortcuts(SM.forceModifier('ctrl'));
-let wolf = new Renderable(
+camera_obj.createKeyboardShortcuts(SM.forceModifier('ctrl'));
+let wolf_obj = new Renderable(
   './objects/Wolf.jobj',
   vec3.fromValues(-1, 0, 2),
   vec3.fromValues(.01, .01, .01)
 );
-wolf.createKeyboardShortcuts(SM.forceModifier('ctrl'));
+wolf_obj.createKeyboardShortcuts(SM.forceModifier('ctrl'));
 
-renderable_list.addRenderable(camera, 'Camera');
-renderable_list.addRenderable(wolf, 'Wolf');
+renderable_list.addRenderable(camera_obj, 'Camera');
+renderable_list.addRenderable(wolf_obj, 'Wolf');
 
 main();
 
-//
-// Start here
-//
 function main() {
   
   const canvas = document.createElement('canvas');
@@ -71,13 +60,13 @@ function main() {
   
   const gl = canvas.getContext('webgl');
   
-  camera.init(gl)
+  camera_obj.init(gl)
   .then(() => {
-    stuff_to_render.push(camera);
+    stuff_to_render.push(camera_obj);
   });
-  wolf.init(gl)
+  wolf_obj.init(gl)
   .then(() => {
-    stuff_to_render.push(wolf);
+    stuff_to_render.push(wolf_obj);
   });
 
   // If we don't have a GL context, give up now
@@ -120,10 +109,8 @@ function drawScene(gl, deltaTime) {
   stuff_to_render.forEach(renderable => {
     
     if (!renderable) return;
-    
-    renderable.draw(gl, projection_matrix, view_matrix);
+    renderable.draw(gl, projection_matrix, camera.view_matrix);
 
-    
   });
   
 }

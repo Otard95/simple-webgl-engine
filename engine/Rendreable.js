@@ -248,50 +248,50 @@ class Renderable {
     {
     KBSM.onKeyPress('shift+ArrowUp', () => {
       if (this.locked) return;
-      this.rotation = quat.multiply(
+      this.rotation = quat.rotateX(
         this.rotation,
         this.rotation,
-        quat.fromEuler(quat.create(), -1, 0, 0)
+        -.02
       )
     });
     KBSM.onKeyPress('shift+ArrowDown', () => {
       if (this.locked) return;
-      this.rotation = quat.multiply(
+      this.rotation = quat.rotateX(
         this.rotation,
         this.rotation,
-        quat.fromEuler(quat.create(), 1, 0, 0)
+        .02
       )
     });
     KBSM.onKeyPress('shift+ArrowLeft', () => {
       if (this.locked) return;
-      this.rotation = quat.multiply(
+      this.rotation = quat.rotateY(
         this.rotation,
         this.rotation,
-        quat.fromEuler(quat.create(), 0, 1, 0)
+        .02
       )
     });
     KBSM.onKeyPress('shift+ArrowRight', () => {
       if (this.locked) return;
-      this.rotation = quat.multiply(
+      this.rotation = quat.rotateY(
         this.rotation,
         this.rotation,
-        quat.fromEuler(quat.create(), 0, -1, 0)
+        -.02
       )
     });
     KBSM.onKeyPress('shift+z', () => {
       if (this.locked) return;
-      this.rotation = quat.multiply(
+      this.rotation = quat.rotateZ(
         this.rotation,
         this.rotation,
-        quat.fromEuler(quat.create(), 0, 0, 1)
+        .02
       )
     });
     KBSM.onKeyPress('shift+x', () => {
       if (this.locked) return;
-      this.rotation = quat.multiply(
+      this.rotation = quat.rotateZ(
         this.rotation,
         this.rotation,
-        quat.fromEuler(quat.create(), 0, 0, -1)
+        -.02
       )
     });
     }
