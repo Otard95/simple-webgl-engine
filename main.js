@@ -1,11 +1,8 @@
 (() => {
   
-document.addEventListener('keypress', (event) => {
-  const keyName = event.key;
+let SM = new ShortcutManager(document);
+let renderable_list = new RenderableList(document.querySelector('.tools #renderables'));
 
-  console.log('keypress event\n\n' + 'key: ' + keyName, `ctrl: ${event.ctrlKey}`);
-});
-  
 const height = 600;
 const width = 800;
 
@@ -20,11 +17,11 @@ const fieldOfView = 45 * Math.PI / 180;   // in radians
 const aspect = width / height;
 const zNear = 0.1;
 const zFar = 600.0;
-const projectionMatrix = mat4.create();
+const projection_matrix = mat4.create();
 
 // note: glmatrix.js always has the first argument
 // as the destination to receive the result.
-mat4.perspective(projectionMatrix,
+mat4.perspective(projection_matrix,
   fieldOfView,
   aspect,
   zNear,
@@ -38,24 +35,27 @@ mat4.translate(
   view_matrix,
   [0,-1,-7]
 );
-  
-// Rotation
-let cuboRotation = 0.0;
-let then = 0;
 
 // Stuff to render
 let stuff_to_render = [];
+
+let then = 0;
 
 let camera = new Renderable(
   './objects/camera.jobj',
   vec3.fromValues(1, 0, 2),
   vec3.fromValues(3, 3, 3)
 );
+camera.createKeyboardShortcuts(SM.forceModifier('ctrl'));
 let wolf = new Renderable(
   './objects/Wolf.jobj',
   vec3.fromValues(-1, 0, 2),
   vec3.fromValues(.01, .01, .01)
 );
+wolf.createKeyboardShortcuts(SM.forceModifier('ctrl'));
+
+renderable_list.addRenderable(camera, 'Camera');
+renderable_list.addRenderable(wolf, 'Wolf');
 
 main();
 
@@ -67,7 +67,7 @@ function main() {
   const canvas = document.createElement('canvas');
   canvas.setAttribute('width', width.toString());
   canvas.setAttribute('height', height.toString());
-  document.body.appendChild(canvas);
+  document.body.insertBefore(canvas, document.body.firstChild);
   
   const gl = canvas.getContext('webgl');
   
@@ -97,6 +97,7 @@ function main() {
     drawScene(gl, deltaTime);
   
     requestAnimationFrame(render);
+    
   }
   
   requestAnimationFrame(render);
@@ -116,132 +117,14 @@ function drawScene(gl, deltaTime) {
 
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-  // // Set the drawing position to the "identity" point, which is
-  // // the center of the scene.
-  // const modelViewMatrix = mat4.create();
-
-  // // Now move the drawing position a bit to where we want to
-  // // start drawing the square.
-
-  // mat4.translate(
-  //   modelViewMatrix,     // destination matrix
-  //   modelViewMatrix,     // matrix to translate
-  //   [-0.0, 0, -2.0],   // amount to translate
-  // );
-
-  // mat4.rotate(
-  //   modelViewMatrix,  // destination matrix
-  //   modelViewMatrix,  // matrix to rotate
-  //   cuboRotation,   // amount to rotate in radians
-  //   [0, 0, 1],        // axis to rotate around
-  // );
-  
-  // mat4.rotate(
-  //   modelViewMatrix,  // destination matrix
-  //   modelViewMatrix,  // matrix to rotate
-  //   cuboRotation * .7,   // amount to rotate in radians
-  //   [0, 1, 0],        // axis to rotate around
-  // );
-
   stuff_to_render.forEach(renderable => {
     
     if (!renderable) return;
     
-    // Tell WebGL how to pull out the positions from the position
-    // buffer into the vertexPosition attribute.
-    {
-      const numComponents = 3;
-      const type = gl.FLOAT;
-      const normalize = false;
-      const stride = 0;
-      const offset = 0;
-      gl.bindBuffer(gl.ARRAY_BUFFER, renderable.shader_program.buffers.positions);
-      gl.vertexAttribPointer(
-        renderable.shader_program.info.attribLocations.vertexPosition,
-        numComponents,
-        type,
-        normalize,
-        stride,
-        offset);
-      gl.enableVertexAttribArray(
-        renderable.shader_program.info.attribLocations.vertexPosition);
-    }
-
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, renderable.shader_program.buffers.indices);
-
-    // Tell WebGL how to pull out the normals from
-    // the normal buffer into the vertexNormal attribute.
-    {
-      const numComponents = 3;
-      const type = gl.FLOAT;
-      const normalize = false;
-      const stride = 0;
-      const offset = 0;
-      gl.bindBuffer(gl.ARRAY_BUFFER, renderable.shader_program.buffers.normal);
-      gl.vertexAttribPointer(
-        renderable.shader_program.info.attribLocations.vertexNormal,
-        numComponents,
-        type,
-        normalize,
-        stride,
-        offset);
-      gl.enableVertexAttribArray(
-        renderable.shader_program.info.attribLocations.vertexNormal);
-    }
-
-    // Tell WebGL how to pull out the colors from the color buffer
-    // into the vertexColor attribute.
-    {
-      const numComponents = 4;
-      const type = gl.FLOAT;
-      const normalize = false;
-      const stride = 0;
-      const offset = 0;
-      gl.bindBuffer(gl.ARRAY_BUFFER, renderable.shader_program.buffers.color);
-      gl.vertexAttribPointer(
-        renderable.shader_program.info.attribLocations.vertexColor,
-        numComponents,
-        type,
-        normalize,
-        stride,
-        offset);
-      gl.enableVertexAttribArray(
-        renderable.shader_program.info.attribLocations.vertexColor);
-    }
-    
-    gl.useProgram(renderable.shader_program.gl_program);
-    
-    let model_view_matrix = mat4.multiply(
-      mat4.create(),
-      view_matrix,
-      renderable.model_matrix
-    );
-
-    // Set the shader uniforms
-    gl.uniformMatrix4fv(
-      renderable.shader_program.info.uniformLocations.projectionMatrix,
-      false,
-      projectionMatrix);
-    gl.uniformMatrix4fv(
-      renderable.shader_program.info.uniformLocations.modelViewMatrix,
-      false,
-      model_view_matrix);
-    gl.uniformMatrix4fv(
-      renderable.shader_program.info.uniformLocations.normalMatrix,
-      false,
-      renderable.normal_matrix);
-
-    {
-      const faceCount = renderable.data.indices.length;
-      const type = gl.UNSIGNED_SHORT;
-      const offset = 0;
-      gl.drawElements(gl.TRIANGLES, faceCount, type, offset);
-    }
+    renderable.draw(gl, projection_matrix, view_matrix);
 
     
   });
-
-  cuboRotation += deltaTime;
   
 }
 

@@ -110,4 +110,15 @@ class Utils {
     
   }
   
+  static random_string (len) {
+    
+    let out = '';
+    for (let i = 0; i < Math.ceil(len/11); i++) {
+      out += Math.random().toString(36).substring(2, Math.min(15, len - out.length + 2));
+    }
+    
+    return out;
+    
+  }
+  
 }

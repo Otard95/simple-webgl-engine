@@ -4,13 +4,30 @@
 <head>
   <meta charset="utf-8">
   <title>WebGL Demo</title>
+  <link href="https://fonts.googleapis.com/css?family=Fira+Sans" rel="stylesheet">
+  <link rel="stylesheet" href="UX/Styles/tools.css">
+  <link rel="stylesheet" href="UX/Styles/main.css">
 </head>
 
 <body>
+  
+<div class="tools">
+  <div id="renderables">
+    <h3>Items</h3>
+    <div class="selection-tools">
+      <button id="unlock-all">Unlock all</button>
+      <button id="lock-all">Lock all</button>
+    </div>
+  </div>
+  
+</div>
+
 </body>
 
 <script src="gl-matrix.js"></script>
 <script src="utils.js"></script>
+<script src="UX/KeyboardShortcut.js"></script>
+<script src="UX/UI.js"></script>
 <script src="engine/Shader.js"></script>
 <script src="engine/ShaderProgram.js"></script>
 <script src="engine/Rendreable.js"></script>

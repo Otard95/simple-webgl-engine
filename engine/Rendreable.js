@@ -14,6 +14,9 @@ class Renderable {
     this._scale = scale;
     this._rotation = rotation;
     
+    this.locked = true;
+    this.enabled = true;
+    
     this.model_matrix = mat4.fromRotationTranslationScaleOrigin(
       mat4.create(),
       this._rotation,
@@ -110,6 +113,188 @@ class Renderable {
       this.data.vertex_normals
     )
     
+  }
+  
+  draw (gl, projection_matrix, view_matrix) {
+    
+    if (!this.enabled) return;
+    
+    // Tell WebGL how to pull out the positions from the position
+    // buffer into the vertexPosition attribute.
+    {
+      const numComponents = 3;
+      const type = gl.FLOAT;
+      const normalize = false;
+      const stride = 0;
+      const offset = 0;
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.shader_program.buffers.positions);
+      gl.vertexAttribPointer(
+        this.shader_program.info.attribLocations.vertexPosition,
+        numComponents,
+        type,
+        normalize,
+        stride,
+        offset);
+      gl.enableVertexAttribArray(
+        this.shader_program.info.attribLocations.vertexPosition);
+    }
+
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.shader_program.buffers.indices);
+
+    // Tell WebGL how to pull out the normals from
+    // the normal buffer into the vertexNormal attribute.
+    {
+      const numComponents = 3;
+      const type = gl.FLOAT;
+      const normalize = false;
+      const stride = 0;
+      const offset = 0;
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.shader_program.buffers.normal);
+      gl.vertexAttribPointer(
+        this.shader_program.info.attribLocations.vertexNormal,
+        numComponents,
+        type,
+        normalize,
+        stride,
+        offset);
+      gl.enableVertexAttribArray(
+        this.shader_program.info.attribLocations.vertexNormal);
+    }
+
+    // Tell WebGL how to pull out the colors from the color buffer
+    // into the vertexColor attribute.
+    {
+      const numComponents = 4;
+      const type = gl.FLOAT;
+      const normalize = false;
+      const stride = 0;
+      const offset = 0;
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.shader_program.buffers.color);
+      gl.vertexAttribPointer(
+        this.shader_program.info.attribLocations.vertexColor,
+        numComponents,
+        type,
+        normalize,
+        stride,
+        offset);
+      gl.enableVertexAttribArray(
+        this.shader_program.info.attribLocations.vertexColor);
+    }
+
+    gl.useProgram(this.shader_program.gl_program);
+
+    let model_view_matrix = mat4.multiply(
+      mat4.create(),
+      view_matrix,
+      this.model_matrix
+    );
+
+    // Set the shader uniforms
+    gl.uniformMatrix4fv(
+      this.shader_program.info.uniformLocations.projectionMatrix,
+      false,
+      projection_matrix);
+    gl.uniformMatrix4fv(
+      this.shader_program.info.uniformLocations.modelViewMatrix,
+      false,
+      model_view_matrix);
+    gl.uniformMatrix4fv(
+      this.shader_program.info.uniformLocations.normalMatrix,
+      false,
+      this.normal_matrix);
+
+    {
+      const faceCount = this.data.indices.length;
+      const type = gl.UNSIGNED_SHORT;
+      const offset = 0;
+      gl.drawElements(gl.TRIANGLES, faceCount, type, offset);
+    }
+  }
+  
+  createKeyboardShortcuts (KBSM) {
+    
+    /**
+     * ### Moving
+    */
+    {
+    KBSM.onKeyPress('ArrowLeft', () => {
+      if (this.locked) return;
+      this.position = vec3.add(this.position, this.position, vec3.fromValues(-.1, 0, 0));
+    });
+    KBSM.onKeyPress('ArrowRight', () => {
+      if (this.locked) return;
+      this.position = vec3.add(this.position, this.position, vec3.fromValues(.1, 0, 0));
+    });
+    KBSM.onKeyPress('ArrowUp', () => {
+      if (this.locked) return;
+      this.position = vec3.add(this.position, this.position, vec3.fromValues(0, 0, .1));
+    });
+    KBSM.onKeyPress('ArrowDown', () => {
+      if (this.locked) return;
+      this.position = vec3.add(this.position, this.position, vec3.fromValues(0, 0, -.1));
+    });
+    KBSM.onKeyPress('x', () => {
+      if (this.locked) return;
+      this.position = vec3.add(this.position, this.position, vec3.fromValues(0, .1, 0));
+    });
+    KBSM.onKeyPress('z', () => {
+      if (this.locked) return;
+      this.position = vec3.add(this.position, this.position, vec3.fromValues(0, -.1, 0));
+    });
+    }
+    /**
+     * ### Rotating
+    */
+    {
+    KBSM.onKeyPress('shift+ArrowUp', () => {
+      if (this.locked) return;
+      this.rotation = quat.multiply(
+        this.rotation,
+        this.rotation,
+        quat.fromEuler(quat.create(), -1, 0, 0)
+      )
+    });
+    KBSM.onKeyPress('shift+ArrowDown', () => {
+      if (this.locked) return;
+      this.rotation = quat.multiply(
+        this.rotation,
+        this.rotation,
+        quat.fromEuler(quat.create(), 1, 0, 0)
+      )
+    });
+    KBSM.onKeyPress('shift+ArrowLeft', () => {
+      if (this.locked) return;
+      this.rotation = quat.multiply(
+        this.rotation,
+        this.rotation,
+        quat.fromEuler(quat.create(), 0, 1, 0)
+      )
+    });
+    KBSM.onKeyPress('shift+ArrowRight', () => {
+      if (this.locked) return;
+      this.rotation = quat.multiply(
+        this.rotation,
+        this.rotation,
+        quat.fromEuler(quat.create(), 0, -1, 0)
+      )
+    });
+    KBSM.onKeyPress('shift+z', () => {
+      if (this.locked) return;
+      this.rotation = quat.multiply(
+        this.rotation,
+        this.rotation,
+        quat.fromEuler(quat.create(), 0, 0, 1)
+      )
+    });
+    KBSM.onKeyPress('shift+x', () => {
+      if (this.locked) return;
+      this.rotation = quat.multiply(
+        this.rotation,
+        this.rotation,
+        quat.fromEuler(quat.create(), 0, 0, -1)
+      )
+    });
+    }
   }
   
 }
