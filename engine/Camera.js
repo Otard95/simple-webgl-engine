@@ -16,12 +16,6 @@ class Camera {
     this.view_matrix = mat4.create();
     this.updateViewMatrix();
     
-    // this.view_matrix = mat4.fromRotationTranslation(
-    //   mat4.create(),
-    //   this._rotation,
-    //   this._position
-    // );
-    
   }
   
   updateViewMatrix() {
@@ -145,7 +139,7 @@ class Camera {
     {
     KBSM.onKeyPress('shift+ArrowUp', () => {
       let rotation = quat.create();
-      quat.setAxisAngle(rotation, this.right, this._rot_speed);
+      quat.setAxisAngle(rotation, this.right, -this._rot_speed);
       this.rotation = quat.mul(
         this.rotation,
         this.rotation,
@@ -154,7 +148,7 @@ class Camera {
     });
     KBSM.onKeyPress('shift+ArrowDown', () => {
       let rotation = quat.create();
-      quat.setAxisAngle(rotation, this.right, -this._rot_speed);
+      quat.setAxisAngle(rotation, this.right, this._rot_speed);
       this.rotation = quat.mul(
         this.rotation,
         this.rotation,
