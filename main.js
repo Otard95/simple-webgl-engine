@@ -1,7 +1,15 @@
 (() => {
+
+// Renderable cashes
+let active_renderables = [];
+let cashed_renderables = [];
   
 let SM = new ShortcutManager(document);
-let renderable_list = new RenderableList(document.querySelector('.tools #renderables'));
+let renderable_list = new RenderableList(
+  document.querySelector('.tools #renderables'),
+  active_renderables,
+  cashed_renderables
+);
 
 const height = 600;
 const width = 800;
@@ -24,14 +32,9 @@ mat4.perspective(projection_matrix,
 );
 }
 
-// setup view matrix
+// Create the camera
 let camera = new Camera();
 camera.createKeyboardShortcuts(SM);
-
-// Stuff to render
-let stuff_to_render = [];
-
-let then = 0;
 
 let camera_obj = new Renderable(
   './objects/camera.jobj',
@@ -62,11 +65,11 @@ function main() {
   
   camera_obj.init(gl)
   .then(() => {
-    stuff_to_render.push(camera_obj);
+    active_renderables.push(camera_obj);
   });
   wolf_obj.init(gl)
   .then(() => {
-    stuff_to_render.push(wolf_obj);
+    active_renderables.push(wolf_obj);
   });
 
   // If we don't have a GL context, give up now
@@ -79,11 +82,8 @@ function main() {
   // Draw the scene repeatedly
   
   function render(now) {
-    now *= 0.001;  // convert to seconds
-    const deltaTime = now - then;
-    then = now;
-  
-    drawScene(gl, deltaTime);
+    
+    drawScene(gl);
   
     requestAnimationFrame(render);
     
@@ -96,7 +96,7 @@ function main() {
 //
 // Draw the scene.
 //
-function drawScene(gl, deltaTime) {
+function drawScene(gl) {
   gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
   gl.clearDepth(1.0);                 // Clear everything
   gl.enable(gl.DEPTH_TEST);           // Enable depth testing
@@ -106,7 +106,7 @@ function drawScene(gl, deltaTime) {
 
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-  stuff_to_render.forEach(renderable => {
+  active_renderables.forEach(renderable => {
     
     if (!renderable) return;
     renderable.draw(gl, projection_matrix, camera.view_matrix);
