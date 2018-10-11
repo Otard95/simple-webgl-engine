@@ -23,8 +23,37 @@ class ShortcutManager {
   }
   
   onKeyPress (keybind, handler) {
-    this.addShortcutTo(keybind, this.addActiveHandler(handler), this._down_shortcuts);
-    this.addShortcutTo(keybind, this.removeActiveHandler(handler), this._up_shortcuts);
+    
+    let keys = keybind.split('+');
+
+    let ctrl_mod = false;
+    let shift_mod = false;
+    let alt_mod = false;
+    let key_identifier = '';
+
+    keys.forEach(key => {
+      switch (key) {
+        case 'ctrl': ctrl_mod = true; break;
+        case 'shift': shift_mod = true; break;
+        case 'alt': alt_mod = true; break;
+        default: key_identifier = key;
+      }
+    });
+
+    let shortcut = (
+      new KBShortcut(
+        key_identifier,
+        ctrl_mod,
+        shift_mod,
+        alt_mod,
+        this.addActiveHandler(handler),
+        this.removeActiveHandler(handler)
+      )
+    );
+    
+    this._down_shortcuts.push(shortcut);
+    this._up_shortcuts.push(shortcut);
+    
   }
   
   onKeyDown (keybind, handler) {
@@ -53,7 +82,9 @@ class ShortcutManager {
       }
     });
     
-    list.push(new KBShortcut(key_identifier, ctrl_mod, shift_mod, alt_mod, handler));
+    list.push(
+      new KBShortcut(key_identifier, ctrl_mod, shift_mod, alt_mod, handler)
+    );
       
   }
   
@@ -64,22 +95,21 @@ class ShortcutManager {
         event.preventDefault();
         event.stopPropagation();
         shortcut.handler(event);
+      } else {
+        if (shortcut.is_press) shortcut.end_handler();
       }
     });
     
   }
   upEventHendler(event) {
     
-    let matches = 0;
     this._up_shortcuts.forEach(shortcut => {
       if (shortcut.match(event)) {
-        matches++;
         event.preventDefault();
         event.stopPropagation();
-        shortcut.handler(event);
+        shortcut.is_press ? shortcut.end_handler(event) : shortcut.handler(event);
       }
     });
-    if (matches == 0) { this._active_handlers = []; }
     
   }
   
@@ -128,12 +158,17 @@ class ShortcutManagerForseModDecorator {
 
 class KBShortcut {
   
-  constructor (key, ctrl_mod, shift_mod, alt_mod, handler) {
+  constructor (key, ctrl_mod, shift_mod, alt_mod, handler, end_handler) {
     this.key = key.toLowerCase();
     this.ctrl_mod = ctrl_mod;
     this.shift_mod = shift_mod;
     this.alt_mod = alt_mod;
     this.handler = handler;
+    this.is_press = false;
+    if (end_handler) {
+      this.end_handler = end_handler;
+      this.is_press = true;
+    }
   }
   
   match (event) {
