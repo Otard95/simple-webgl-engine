@@ -17,7 +17,7 @@ class Light extends Renderable {
     out_vec = vec3.transformQuat(
       out_vec,
       out_vec,
-      super.rotation
+      this.rotation
     );
     return out_vec;
   }
@@ -60,7 +60,7 @@ class Light extends Renderable {
       const offset = 0;
       gl.bindBuffer(gl.ARRAY_BUFFER, renderable.shader_program.buffers.positions);
       gl.vertexAttribPointer(
-        renderable.shader_program.info.attribLocations.vertexPosition,
+        this._shadow_shader_program.info.attribLocations.vertexPosition,
         numComponents, type, normalize,
         stride, offset
       );
@@ -74,12 +74,6 @@ class Light extends Renderable {
       );
     }
     
-    // let model_view_matrix = mat4.multiply(
-    //   mat4.create(),
-    //   view_matrix || this.shadow_view_matrix,
-    //   renderable.model_matrix
-    // );
-    
     gl.uniformMatrix4fv(
       this._shadow_shader_program.info.uniformLocations.projectionMatrix,
       false,
@@ -91,9 +85,9 @@ class Light extends Renderable {
       view_matrix || this.shadow_view_matrix
     );
     gl.uniformMatrix4fv(
-      this._shadow_shader_program.info.uniformLocations.ModelMatrix,
+      this._shadow_shader_program.info.uniformLocations.modelMatrix,
       false,
-      this.model_matrix
+      renderable.model_matrix
     );
 
     gl.drawElements(gl.TRIANGLES, renderable.data.indices.length,
@@ -105,17 +99,31 @@ class Light extends Renderable {
   }
   
   updateShadowViwMatrix () {
-    // lookAt(out, eye, center, up) 
-    this.shadow_view_matrix = mat4.lookAt(
-      mat4.create(),
-      vec3.scale(
-        vec3.create(),
-        this.direction,
-        -5
-      ),
-      vec3.create(),
-      vec3.fromValues(0, 1, 0)
+    this.shadow_view_matrix = mat4.create();
+    mat4.fromQuat(
+      this.shadow_view_matrix,
+      //this.rotation
+      quat.conjugate(quat.create(), this.rotation)
+    )
+    mat4.translate(
+      this.shadow_view_matrix,
+      this.shadow_view_matrix,
+      vec3.scale(vec3.create(), this.direction, 5)
     );
+    return;
+
+    // lookAt(out, eye, center, up)
+    // let eye = vec3.scale(
+    //   vec3.create(),
+    //   this.direction,
+    //   5
+    // );
+    // this.shadow_view_matrix = mat4.lookAt(
+    //   this.shadow_view_matrix,
+    //   eye,
+    //   vec3.create(),
+    //   vec3.fromValues(0, 1, 0)
+    // );
   }
   
   initShadowRendering() {

@@ -34,10 +34,11 @@ mat4.perspective(projection_matrix,
 }
 
 // Create ShaderProgram for Shadow Mapping
-let shadow_buffer = new ShadowBuffer(width/4, height/4);
+let shadow_buffer = new ShadowBuffer(width/2, height/2);
+let shadow_mapping_program;
 
 // Debug canvas for displaying shadowmap
-let debug_canvas = new DebugCanvas(width/4, height/4);
+let debug_canvas = new DebugCanvas(width/2, height/2);
 debug_canvas.init();
 
 // Create the camera
@@ -106,7 +107,7 @@ function main() {
   
   
   shadow_buffer.init(gl);
-    
+  
   renderable_list.setupGLContext(gl);
   
   camera_obj.init(gl);
@@ -165,7 +166,10 @@ function drawScene (gl) {
     
     active_renderables.forEach(renderable => {
       if (!renderable) return;
-      light.drawShadows(gl, shadow_buffer.frame_buffer, shadow_buffer.depth_texture, shadow_buffer.color_texture, width/4, height/4, renderable);
+      light.drawShadows(
+        gl, shadow_buffer.frame_buffer, shadow_buffer.depth_texture,
+        shadow_buffer.color_texture, width/2, height/2, renderable
+      );
     });
     
   });
@@ -173,12 +177,15 @@ function drawScene (gl) {
   active_renderables.forEach(renderable => {
     
     if (!renderable) return;
-    renderable.draw(gl, width, height, projection_matrix, camera.view_matrix, light, shadow_buffer.depth_texture);
+    renderable.draw(
+      gl, width, height, projection_matrix, camera.view_matrix,
+      light, shadow_buffer.depth_texture
+    );
 
   });
   
   // Draw shadow map to 2d canwas
-  debug_canvas.drawPixels(shadow_buffer.getPixels(gl), width/4, height/4);
+  debug_canvas.drawPixels(shadow_buffer.getPixels(gl), width/2, height/2);
   
 }
 

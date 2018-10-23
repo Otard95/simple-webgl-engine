@@ -35,6 +35,7 @@ class ShaderProgram {
         normalMatrix: gl.getUniformLocation(this.gl_program, 'uNormalMatrix'),
         uSampler: gl.getUniformLocation(this.gl_program, 'uSampler'),
         lightDirection: gl.getUniformLocation(this.gl_program, 'uLightDirection'),
+        lightViewMatrix: gl.getUniformLocation(this.gl_program, 'uLightViewMatrix'),
       },
     };
     

@@ -62,6 +62,7 @@ class Shader {
         case 'uProjectionMatrix': this.uniforms |= Shader.uniform.PROJ_MAT; break;
         case 'uSampler': this.uniforms |= Shader.uniform.USAMP; break;
         case 'uLightDirection': this.attribs |= Shader.attrib.LIGHT_DIR; break;
+        case 'uLightViewMatrix': this.attribs |= Shader.attrib.LIGHT_DIR; break;
         default: console.warn('Shader has unknown uniform!');
       }
     }
@@ -84,4 +85,5 @@ Shader.uniform = {
   PROJ_MAT:  0b00001000,
   USAMP:     0b00010000,
   LIGHT_DIR: 0b00100000,
+  LVIEW_MAT: 0b01000000,
 };

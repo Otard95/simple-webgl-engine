@@ -16,7 +16,7 @@ void main(void) {
   //gl_FragColor = vColor;
   
   lowp float visibility = 1.0;
-  if ( texture2D( uSampler, vShadowCoord.xy ).z  <  vShadowCoord.z){
+  if ( texture2D( uSampler, vShadowCoord.xy ).z  <  vShadowCoord.z) {
     visibility = 0.1;
   }
   

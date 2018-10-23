@@ -184,12 +184,6 @@ class Renderable extends Drawable {
       gl.enableVertexAttribArray(
         this.shader_program.info.attribLocations.vertexColor);
     }
-
-    // let model_view_matrix = mat4.multiply(
-    //   mat4.create(),
-    //   view_matrix,
-    //   this.model_matrix
-    // );
     
     gl.activeTexture(gl.TEXTURE0);
 
@@ -219,6 +213,11 @@ class Renderable extends Drawable {
       this.shader_program.info.uniformLocations.normalMatrix,
       false,
       this.normal_matrix
+    );
+    gl.uniformMatrix4fv(
+      this.shader_program.info.uniformLocations.lightViewMatrix,
+      false,
+      light.shadow_view_matrix,
     );
     gl.uniform3fv(
       this.shader_program.info.uniformLocations.lightDirection,
