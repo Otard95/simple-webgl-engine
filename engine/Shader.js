@@ -53,13 +53,15 @@ class Shader {
   parseUniforms() {
 
     let match;4
-    let uniform_rx = /^(?![\/ ]+)uniform [\w]+ (\w+)/gm;
+    let uniform_rx = /^(?![\/ ]+)uniform [\w]+(?: [\w]+) (\w+)/gm;
     while ((match = uniform_rx.exec(this.source)) != null) {
       switch (match[1]) {
         case 'uNormalMatrix': this.uniforms |= Shader.uniform.NORM_MAT; break;
-        case 'uModelViewMatrix': this.uniforms |= Shader.uniform.MV_MAT; break;
+        case 'uViewMatrix': this.uniforms |= Shader.uniform.VIEW_MAT; break;
+        case 'uModelMatrix': this.uniforms |= Shader.uniform.MODEL_MAT; break;
         case 'uProjectionMatrix': this.uniforms |= Shader.uniform.PROJ_MAT; break;
         case 'uSampler': this.uniforms |= Shader.uniform.USAMP; break;
+        case 'uLightDirection': this.attribs |= Shader.attrib.LIGHT_DIR; break;
         default: console.warn('Shader has unknown uniform!');
       }
     }
@@ -69,15 +71,17 @@ class Shader {
 }
 
 Shader.attrib = {
-  VERT_POS: 0b00000001,
+  VERT_POS:  0b00000001,
   VERT_NORM: 0b00000010,
-  VERT_COL: 0b00000100,
-  VERT_TEXC: 0b00001000
+  VERT_COL:  0b00000100,
+  VERT_TEXC: 0b00001000,
 };
 
 Shader.uniform = {
-  NORM_MAT: 0b00000001,
-  MV_MAT: 0b00000010,
-  PROJ_MAT: 0b00000100,
-  USAMP: 0b00001000
+  NORM_MAT:  0b00000001,
+  VIEW_MAT:  0b00000010,
+  MODEL_MAT: 0b00000100,
+  PROJ_MAT:  0b00001000,
+  USAMP:     0b00010000,
+  LIGHT_DIR: 0b00100000,
 };

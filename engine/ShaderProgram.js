@@ -26,13 +26,15 @@ class ShaderProgram {
         vertexPosition: gl.getAttribLocation(this.gl_program, 'aVertexPosition'),
         vertexColor: gl.getAttribLocation(this.gl_program, 'aVertexColor'),
         vertexNormal: gl.getAttribLocation(this.gl_program, 'aVertexNormal'),
-        textureCoord: gl.getAttribLocation(this.gl_program, 'aTextureCoord')
+        textureCoord: gl.getAttribLocation(this.gl_program, 'aTextureCoord'),
       },
       uniformLocations: {
         projectionMatrix: gl.getUniformLocation(this.gl_program, 'uProjectionMatrix'),
-        modelViewMatrix: gl.getUniformLocation(this.gl_program, 'uModelViewMatrix'),
+        viewMatrix: gl.getUniformLocation(this.gl_program, 'uViewMatrix'),
+        modelMatrix: gl.getUniformLocation(this.gl_program, 'uModelMatrix'),
         normalMatrix: gl.getUniformLocation(this.gl_program, 'uNormalMatrix'),
-        uSampler: gl.getUniformLocation(this.gl_program, 'uSampler')
+        uSampler: gl.getUniformLocation(this.gl_program, 'uSampler'),
+        lightDirection: gl.getUniformLocation(this.gl_program, 'uLightDirection'),
       },
     };
     

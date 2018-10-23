@@ -122,3 +122,43 @@ class Utils {
   }
   
 }
+
+/**
+ * ### Extentions Methuds
+*/
+
+if (!String.prototype.forceLength)
+String.prototype.forceLength = function (len, fill = ' ') {
+  
+  if (typeof fill !== 'string')
+    throw new Error('Parameter `fill` must be of type `string`.');
+  if (fill.length == 0)
+    throw new Error('Parameter `fill` cannot be length 0.');
+  if (typeof len !== 'number')
+    throw new Error('Parameter `len` has to be of type `number`')
+  
+  if (this.length > len)   return this.substr(0, len);
+  if (this.length === len) return this;
+  let missingLength = (len - this.length);
+  let nFill = Math.floor(missingLength / fill.length);
+  let lastFill = fill.substr(0, len - (fill.length * nFill + this.length));
+  if (String.prototype.repeat)
+    return this + fill.repeat(nFill) + lastFill;
+  else
+    return this + Array().join(fill) + lastFill;
+  
+};
+
+if (!String.prototype.trimLines)
+String.prototype.trimLines = function (nLines = 1) {
+  let out = this;
+  for (let i = 0; i < nLines; i++) {
+    out = out.substr(0, out.lastIndexOf('\n'));
+  }
+  return out;
+}
+
+if (!Math.sqr)
+Math.sqr = function (val) {
+  return Math.pow(val, 2);
+}

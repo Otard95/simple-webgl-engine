@@ -12,26 +12,35 @@
 <body>
   
 <div class="tools">
-  <div id="renderables">
-    <h3>Items</h3>
+  <div class="tool-set" id="renderables">
+    <h3>Items in scene</h3>
     <div class="selection-tools">
       <button id="unlock-all">Unlock all</button>
       <button id="lock-all">Lock all</button>
     </div>
   </div>
-  
+  <div class="tool-set" id="cached-renderables">
+    <h3>Items outside scene</h3>
+    <button id="add-object-btn" disabled>+</button>
+  </div>
 </div>
 
 </body>
 
 <script src="gl-matrix.js"></script>
+<script src="models/Object3D.js"></script>
 <script src="utils.js"></script>
+<script src="UX/DebugCanvas.js"></script>
 <script src="UX/KeyboardShortcut.js"></script>
 <script src="UX/UI.js"></script>
+<script src="engine/ShadowBuffer.js"></script>
+<script src="engine/Transform.js"></script>
+<script src="engine/Drawable.js"></script>
 <script src="engine/Camera.js"></script>
 <script src="engine/Shader.js"></script>
 <script src="engine/ShaderProgram.js"></script>
 <script src="engine/Rendreable.js"></script>
+<script src="engine/Light.js"></script>
 <script src="main.js"></script>
 
 </html>
